@@ -223,3 +223,14 @@ TEST(PlayerBoard, GeneratePlacements_TST) {
   }
   EXPECT_TRUE(ok) << "Should have found one valid TST kick.";
 }
+
+
+TEST(PlayerBoard, ClearLines) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "##########\n"
+      "#.........\n"
+      "##########");
+  EXPECT_EQ(pb.ClearLines(), 2) << "there are two filled in lines";
+  EXPECT_EQ(pb.board().grid[0], 1) << "that one block should've dropped";
+}

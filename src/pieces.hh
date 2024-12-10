@@ -93,6 +93,7 @@ class Piece {
   }
   size_t width() const { return width_; }
   size_t height() const { return height_; }
+  const auto& nesw() const { return nesw_; }
   const std::string& name() const { return name_; }
 
  private:

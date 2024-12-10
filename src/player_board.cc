@@ -95,6 +95,8 @@ void PlayerBoard::Harddrop() {
   spin_ = mobility == 0;
   current_piece_->Place(board_, px_, py_, pd_);
   // std::cout << board_ << "\n";
+  ClearLines();
+
   current_piece_ = QueuePop();
   ResetPosition();
 }
@@ -160,6 +162,37 @@ void PlayerBoard::MoveRight() {
   }
 }
 
+int PlayerBoard::ClearLines() {
+  int lines = 0;
+  const static Board::Grid line = pieces::Line10.nesw()[0];
+  int j = 0;
+  for (int i = 0; i < Board::height; ++i) {  // scan from bottom to top
+    auto mask = (line << (Board::width * i));
+    /// TODO: maybe vector<int32_t> would make more sense since you
+    /// have these row-wise operations?
+    auto line_mask = board_.grid & mask;
+    if (line_mask == mask) {
+      ++lines;
+      board_.grid ^= mask;
+    } else {
+      if (i != j) {  // move row i to row j
+        line_mask |= (line_mask >> (Board::width * (i - j)));
+        board_.grid ^= line_mask;
+        // std::cout << "move " << i << " to " << j << "\n";
+        // Board b; b.grid = line_mask; std::cout << b << "\n";
+      }
+      ++j;
+    }
+    // std::cout << mask << "\n";
+    // Board b; b.grid = mask; std::cout << b << "\n";
+    // board_.grid
+  }
+  int base = lines;
+  if (base == 1 || base == 2 || base == 3) base -= 1;
+  attack_ += base * (spin_ ? 2 : 1);
+  return lines;
+}
+
 bool PlayerBoard::IsValidPosition(int x, int y, int d) const {
   bool ok = !current_piece_->Intersects(board_, x, y, d);
   // std::cout << "testing " << x << " " << y << " " << d << " ";
@@ -169,7 +202,7 @@ bool PlayerBoard::IsValidPosition(int x, int y, int d) const {
 }
 
 std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
-  PlayerBoard pb(*this); // make a copy to do the simulations
+  PlayerBoard pb(*this);  // make a copy to do the simulations
   /// TODO: replace with static array with vis counter
   std::set<std::array<int, 3>> vis, vis_stable;
   pb.ResetPosition();

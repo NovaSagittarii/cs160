@@ -27,7 +27,8 @@ class PlayerBoard {
   void set_px(int px) { px_ = px; }
   void set_py(int py) { py_ = py; }
   void set_pd(int pd) { pd_ = pd; }
-  bool spin() const {return spin_; }
+  bool spin() const { return spin_; }
+  const auto& board() const { return board_; }
   const Piece* current_piece() const { return current_piece_; }
   void set_current_piece(const Piece* piece) { current_piece_ = piece; }
 
@@ -53,8 +54,10 @@ class PlayerBoard {
 
   /**
    * Clears any lines that are filled, applies combo and spin bonus.
+   *
+   * @return the number of lines cleared
    */
-  void ClearLines();
+  int ClearLines();
 
   /**
    * @brief Checks if you can put the piece there without intersecting existing
