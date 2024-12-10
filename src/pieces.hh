@@ -44,8 +44,8 @@ class Piece {
     if (dy + y_offset_ < 0) return true;
     // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height
     // << "\n";
-    if (dx + width_ > Board::width) return true;
-    if (dy + height_ > Board::height) return true;
+    if (dx + width_ >= Board::width) return true;
+    if (dy + height_ >= Board::height) return true;
     int offset = (dx + Board::width * dy);
     auto mask = nesw_[direction];
     if (offset > 0) {
@@ -74,7 +74,7 @@ class Piece {
   void Place(Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Invalid offset");
     // assert(dy + y_offset_ >= 0 && "Invalid offset"); // This is broken?
-    assert(dx + width_ <= Board::width && "Invalid offset");
+    assert(dx + width_ < Board::width && "Invalid offset");
     assert(dy + height_ <= Board::height && "Invalid offset");
     int offset = (dx + Board::width * dy);
     auto mask = nesw_[direction];
