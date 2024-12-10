@@ -65,7 +65,7 @@ void PlayerBoard::SetQueue(std::vector<const Piece*> pieces) {
   assert(pieces.size() <= 7 && "no more than 7 pieces set");
   piece_queue_index_ = 0;
   for (size_t i = 1; i < pieces.size(); ++i) {
-    piece_queue_[i-1] = pieces[i];
+    piece_queue_[i - 1] = pieces[i];
   }
   current_piece_ = pieces[0];
   queue_curr_ = piece_queue_;
@@ -97,8 +97,13 @@ void PlayerBoard::ResetPosition() {
   pd_ = 0;
 }
 
-void PlayerBoard::Softdrop() {
-  while (py_ - 1 >= -10 && IsValidPosition(px_, py_ - 1, pd_)) --py_;
+bool PlayerBoard::Softdrop() {
+  bool ok = false;
+  while (py_ - 1 >= -10 && IsValidPosition(px_, py_ - 1, pd_)) {
+    --py_;
+    ok = true;
+  }
+  return ok;
 }
 
 void PlayerBoard::Harddrop() {
@@ -118,7 +123,7 @@ void PlayerBoard::Harddrop() {
   ResetPosition();
 }
 
-void PlayerBoard::RotateCW() {
+bool PlayerBoard::RotateCW() {
   /**
    * 0->1	( 0, 0)	(-1, 0)	(-1,+1)	( 0,-2)	(-1,-2)
    * 1->2	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
@@ -136,11 +141,12 @@ void PlayerBoard::RotateCW() {
       px_ += dx;
       py_ += dy;
       pd_ = (pd_ + 1) % 4;
-      break;
+      return true;
     }
   }
+  return false;
 }
-void PlayerBoard::RotateCCW() {
+bool PlayerBoard::RotateCCW() {
   /*
    * 0->3	( 0, 0)	(+1, 0)	(+1,+1)	( 0,-2)	(+1,-2)
    * 1->0	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
@@ -158,25 +164,32 @@ void PlayerBoard::RotateCCW() {
       px_ += dx;
       py_ += dy;
       pd_ = (pd_ - 1 + 4) % 4;
-      break;
+      return true;
     }
   }
+  return false;
 }
-void PlayerBoard::Rotate180() {
+bool PlayerBoard::Rotate180() {
   /// TODO: 180 kick table
   if (IsValidPosition(px_, py_, pd_ ^ 2)) {
     pd_ ^= 2;
+    return true;
   }
+  return false;
 }
-void PlayerBoard::MoveLeft() {
+bool PlayerBoard::MoveLeft() {
   if (IsValidPosition(px_ - 1, py_, pd_)) {
     px_ -= 1;
+    return true;
   }
+  return false;
 }
-void PlayerBoard::MoveRight() {
+bool PlayerBoard::MoveRight() {
   if (IsValidPosition(px_ + 1, py_, pd_)) {
     px_ += 1;
+    return true;
   }
+  return false;
 }
 
 int PlayerBoard::ClearLines() {
@@ -244,36 +257,42 @@ std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
     if (vis.count(k)) return;
     vis.insert(k);
 
-    pb.MoveLeft();
-    dfs(dfs);
-    pb.set_px(px);
-    pb.set_py(py);
-    pb.set_pd(pd);
+    if (pb.MoveLeft()) {
+      dfs(dfs);
+      pb.set_px(px);
+      pb.set_py(py);
+      pb.set_pd(pd);
+    }
 
-    pb.MoveRight();
-    dfs(dfs);
-    pb.set_px(px);
-    pb.set_py(py);
-    pb.set_pd(pd);
+    if (pb.MoveRight()) {
+      dfs(dfs);
+      pb.set_px(px);
+      pb.set_py(py);
+      pb.set_pd(pd);
+    }
 
-    pb.RotateCW();
-    dfs(dfs);
-    pb.set_px(px);
-    pb.set_py(py);
-    pb.set_pd(pd);
+    if (pb.RotateCW()) {
+      dfs(dfs);
+      pb.set_px(px);
+      pb.set_py(py);
+      pb.set_pd(pd);
+    }
 
-    pb.RotateCCW();
-    dfs(dfs);
-    pb.set_px(px);
-    pb.set_py(py);
-    pb.set_pd(pd);
+    if (pb.RotateCCW()) {
+      dfs(dfs);
+      pb.set_px(px);
+      pb.set_py(py);
+      pb.set_pd(pd);
+    }
 
-    pb.Softdrop();
+    bool softdrop_worked = pb.Softdrop();
     vis_stable.insert({pb.px(), pb.py(), pb.pd()});
-    dfs(dfs);
-    pb.set_px(px);
-    pb.set_py(py);
-    pb.set_pd(pd);
+    if (softdrop_worked) {
+      dfs(dfs);
+      pb.set_px(px);
+      pb.set_py(py);
+      pb.set_pd(pd);
+    }
   };
   dfs(dfs);
 

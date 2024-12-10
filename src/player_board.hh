@@ -53,12 +53,18 @@ class PlayerBoard {
   void ResetPosition();
 
   void Harddrop();
-  void Softdrop();
-  void RotateCW();
-  void RotateCCW();
-  void Rotate180();
-  void MoveLeft();
-  void MoveRight();
+  // returns true when successful
+  bool Softdrop();
+  // returns true when successful
+  bool RotateCW();
+  // returns true when successful
+  bool RotateCCW();
+  // returns true when successful
+  bool Rotate180();
+  // returns true when successful
+  bool MoveLeft();
+  // returns true when successful
+  bool MoveRight();
 
   /**
    * Clears any lines that are filled, applies combo and spin bonus.
