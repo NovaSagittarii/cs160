@@ -260,6 +260,42 @@ TEST(PlayerBoard, ClearQuad2) {
       "#########.\n"
       "#########.\n"
       "#########.");
-  std::vector<int> expected{0, 0, 4, 9};
+  std::vector<int> expected{0, 0, 4, 10};
   EXPECT_EQ(pb.AttackPotential(3), expected);
+}
+
+TEST(PlayerBoard, ClearICombo) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....");
+  pb.SetQueue(std::vector(7, &pieces::I));
+  std::vector<int> expected{0, 0, 0, 1, 2, 3, 5, 7};
+  EXPECT_EQ(pb.AttackPotential(7), expected);
+}
+
+TEST(PlayerBoard, ClearTSMCombo) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "######....\n"
+      "########..\n"
+      "#######...");
+  pb.SetQueue({&pieces::O, &pieces::T, &pieces::T, &pieces::T, &pieces::T});
+  auto attack_potential = pb.AttackPotential(5);
+  for (auto x : attack_potential) std::cout << x << " ";
+  std::cout << "\n";
+  EXPECT_GT(attack_potential[3], 0);
 }

@@ -61,12 +61,13 @@ void PlayerBoard::LoadBoard(const std::string& s) {
 }
 
 void PlayerBoard::SetQueue(std::vector<const Piece*> pieces) {
+  assert(!pieces.empty() && "nonempty queue");
   assert(pieces.size() <= 7 && "no more than 7 pieces set");
-  piece_queue_index_ = 1;
-  for (size_t i = 0; i < pieces.size(); ++i) {
-    piece_queue_[i] = pieces[i];
+  piece_queue_index_ = 0;
+  for (size_t i = 1; i < pieces.size(); ++i) {
+    piece_queue_[i-1] = pieces[i];
   }
-  current_piece_ = piece_queue_[0];
+  current_piece_ = pieces[0];
   queue_curr_ = piece_queue_;
   queue_next_ = piece_queue_ + 7;
 }
@@ -213,6 +214,12 @@ int PlayerBoard::ClearLines() {
     b2b_ = 0;
   }
   attack_ += base * (spin_ ? 2 : 1);
+  if (lines) {
+    attack_ += (combo_ + 1) / 3;
+    ++combo_;
+  } else {
+    combo_ = 0;
+  }
   return lines;
 }
 
