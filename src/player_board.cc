@@ -1,5 +1,7 @@
 #include "player_board.hh"
 
+#include <array>
+#include <set>
 #include <vector>
 
 PlayerBoard::PlayerBoard() {
@@ -165,6 +167,54 @@ bool PlayerBoard::IsValidPosition(int x, int y, int d) const {
   // std::cout << "\n";
   return ok;
 }
+
+std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
+  PlayerBoard pb(*this); // make a copy to do the simulations
+  /// TODO: replace with static array with vis counter
+  std::set<std::array<int, 3>> vis, vis_stable;
+  pb.ResetPosition();
+  auto dfs = [&](auto&& dfs) -> void {
+    int px = pb.px();
+    int py = pb.py();
+    int pd = pb.pd();
+    std::array<int, 3> k = {px, py, pd};
+    if (vis.count(k)) return;
+    vis.insert(k);
+
+    pb.MoveLeft();
+    dfs(dfs);
+    pb.set_px(px);
+    pb.set_py(py);
+    pb.set_pd(pd);
+
+    pb.MoveRight();
+    dfs(dfs);
+    pb.set_px(px);
+    pb.set_py(py);
+    pb.set_pd(pd);
+
+    pb.RotateCW();
+    dfs(dfs);
+    pb.set_px(px);
+    pb.set_py(py);
+    pb.set_pd(pd);
+
+    pb.RotateCCW();
+    dfs(dfs);
+    pb.set_px(px);
+    pb.set_py(py);
+    pb.set_pd(pd);
+
+    pb.Softdrop();
+    vis_stable.insert({pb.px(), pb.py(), pb.pd()});
+    dfs(dfs);
+    pb.set_px(px);
+    pb.set_py(py);
+    pb.set_pd(pd);
+  };
+  dfs(dfs);
+  return {vis_stable.begin(), vis_stable.end()};
+};
 
 std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs) {
   out << "curr: " << rhs.current_piece_->name() << "\n";

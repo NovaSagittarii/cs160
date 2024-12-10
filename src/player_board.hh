@@ -24,6 +24,9 @@ class PlayerBoard {
   int px() const { return px_; }
   int py() const { return py_; }
   int pd() const { return pd_; }
+  void set_px(int px) { px_ = px; }
+  void set_py(int py) { py_ = py; }
+  void set_pd(int pd) { pd_ = pd; }
   bool spin() const {return spin_; }
   const Piece* current_piece() const { return current_piece_; }
   void set_current_piece(const Piece* piece) { current_piece_ = piece; }
@@ -62,6 +65,8 @@ class PlayerBoard {
    * @return `true` if `current_piece` can be placed with offsets `x`, `y`.
    */
   bool IsValidPosition(int x, int y, int d) const;
+
+  std::vector<std::array<int, 3>> GeneratePlacements() const;
 
   friend std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs);
 

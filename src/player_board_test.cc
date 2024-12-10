@@ -198,3 +198,28 @@ TEST(PlayerBoard, Kick_TST_CCW) {
   pb.Harddrop();
   EXPECT_FALSE(pb.spin()) << "that is not a spin";
 }
+
+TEST(PlayerBoard, GeneratePlacements_O) {
+  PlayerBoard pb;
+  pb.set_current_piece(&pieces::O);
+  EXPECT_EQ(pb.GeneratePlacements().size(), 36)
+      << "There are 36 possible locations to put an O on an empty board. 9 "
+         "horizontal offsets, and 4 orientations for each ";
+}
+
+TEST(PlayerBoard, GeneratePlacements_TST) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "##........\n"
+      "#.........\n"
+      "#.#####.##\n"
+      "#..#####.#\n"
+      "#.#######.");
+  pb.set_current_piece(&pieces::T);
+  pb.ResetPosition();
+  bool ok = false;
+  for (auto [x, y, d] : pb.GeneratePlacements()) {
+    if (y == 0) ok = true;
+  }
+  EXPECT_TRUE(ok) << "Should have found one valid TST kick.";
+}
