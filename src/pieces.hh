@@ -64,7 +64,7 @@ class Piece {
     int i = 0;
     width = -1;
     while (std::getline(in, line)) {
-      for (int j = 0; j < line.size(); ++j) {
+      for (size_t j = 0; j < line.size(); ++j) {
         assert(i * Board::width + j < grid.size() &&
                "Input shouldn't go out of bounds.");
         if (line[j] == '#') {
@@ -75,7 +75,7 @@ class Piece {
       if (width == -1) {
         width = line.size();
       } else {
-        assert(width == line.size() && "Input should be a n x m rectangle.");
+        assert(width == (int)line.size() && "Input should be a n x m rectangle.");
       }
     }
     height = i;
