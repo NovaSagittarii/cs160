@@ -21,10 +21,10 @@ class Piece {
   Piece(const std::string& name, const std::string& sn, const std::string& se,
         const std::string& ss, const std::string& sw) {
     name_ = name;
-    LoadString(nesw[0], sn);
-    LoadString(nesw[1], se);
-    LoadString(nesw[2], ss);
-    LoadString(nesw[3], sw);
+    LoadString(nesw_[0], sn);
+    LoadString(nesw_[1], se);
+    LoadString(nesw_[2], ss);
+    LoadString(nesw_[3], sw);
   }
 
   /**
@@ -41,25 +41,25 @@ class Piece {
   bool Intersects(const Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Never should use negative offset.");
     assert(dy >= 0 && "Never should use negative offset.");
-    if (dx + width > Board::width || dy + height > Board::height) return false;
-    auto mask = nesw[direction] << (dx + Board::width * dy);
+    if (dx + width_ > Board::width || dy + height_ > Board::height) return false;
+    auto mask = nesw_[direction] << (dx + Board::width * dy);
     return (board.grid & mask).any();
   }
 
   void Place(Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Invalid offset");
     assert(dy >= 0 && "Invalid offset");
-    assert(dx + width <= Board::width && "Invalid offset");
-    assert(dy + height <= Board::height && "Invalid offset");
-    auto mask = nesw[direction] << (dx + Board::width * dy);
+    assert(dx + width_ <= Board::width && "Invalid offset");
+    assert(dy + height_ <= Board::height && "Invalid offset");
+    auto mask = nesw_[direction] << (dx + Board::width * dy);
     board.grid |= mask;
   }
 
   const std::string& name() const { return name_; }
 
  private:
-  int width, height;
-  std::array<Board::Grid, 4> nesw;
+  int width_, height_;
+  std::array<Board::Grid, 4> nesw_;
   std::string name_;
 
   void LoadString(Board::Grid& grid, const std::string& s) {
@@ -67,7 +67,7 @@ class Piece {
     std::string line;
     grid ^= grid;  // clear
     int i = 0;
-    width = -1;
+    width_ = -1;
     while (std::getline(in, line)) {
       for (size_t j = 0; j < line.size(); ++j) {
         assert(i * Board::width + j < grid.size() &&
@@ -77,14 +77,14 @@ class Piece {
         }
       }
       ++i;
-      if (width == -1) {
-        width = line.size();
+      if (width_ == -1) {
+        width_ = line.size();
       } else {
-        assert(width == (int)line.size() &&
+        assert(width_ == (int)line.size() &&
                "Input should be a n x m rectangle.");
       }
     }
-    height = i;
+    height_ = i;
   }
 };
 
