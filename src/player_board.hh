@@ -23,6 +23,7 @@ class PlayerBoard {
   int px() const { return px_; }
   int py() const { return py_; }
   int pd() const { return pd_; }
+  bool spin() const {return spin_; }
   const Piece* current_piece() const { return current_piece_; }
   void set_current_piece(const Piece* piece) { current_piece_ = piece; }
 
@@ -47,6 +48,11 @@ class PlayerBoard {
   void MoveRight();
 
   /**
+   * Clears any lines that are filled, applies combo and spin bonus.
+   */
+  void ClearLines();
+
+  /**
    * @brief Checks if you can put the piece there without intersecting existing
    * blocks.
    *
@@ -67,6 +73,12 @@ class PlayerBoard {
   int px_, py_;
   // piece orientation direction
   int pd_;
+  // whether spin bonus is active, determined at harddrop time, before line
+  // updates (double attack)
+  bool spin_;
+  int b2b_;     // length of back to back
+  int combo_;   // length of ongoing combo
+  int attack_;  // pending attack
 
   // circular queue indexed by `piece_queue_index`
   const Piece* piece_queue_[14];

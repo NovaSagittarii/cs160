@@ -70,18 +70,23 @@ void PlayerBoard::RefreshQueue() {
 
 void PlayerBoard::ResetPosition() {
   px_ = (Board::width - current_piece_->width() - 2) / 2;
-  py_ = 23;
+  py_ = 20;
   pd_ = 0;
-  spin_ = false;
 }
 
 void PlayerBoard::Softdrop() {
-  while (py_ - 1 >= 0 && IsValidPosition(px_, py_ - 1, pd_)) --py_;
+  while (py_ - 1 >= -10 && IsValidPosition(px_, py_ - 1, pd_)) --py_;
 }
 
 void PlayerBoard::Harddrop() {
   Softdrop();
   // std::cout << board_ << "\n";
+  int mobility = 0;
+  if (IsValidPosition(px_ - 1, py_, pd_)) mobility |= 1;
+  if (IsValidPosition(px_ + 1, py_, pd_)) mobility |= 2;
+  if (IsValidPosition(px_, py_ + 1, pd_)) mobility |= 3;
+
+  spin_ = mobility == 0;
   current_piece_->Place(board_, px_, py_, pd_);
   // std::cout << board_ << "\n";
   current_piece_ = QueuePop();

@@ -52,38 +52,58 @@ TEST(PlayerBoard, BagContents) {
 TEST(PlayerBoard, Harddrop_I) {
   PlayerBoard pb;
   const Piece* I = &pieces::I;
+  int expect_y = 0;
+  pb.set_current_piece(I);
+  pb.ResetPosition();
+  pb.Softdrop();
+  expect_y = pb.py();
   for (int i = 0; i < 10; ++i) {
     pb.set_current_piece(I);
     pb.ResetPosition();
-    EXPECT_EQ(pb.py(), 23) << "Should spawn at the top";
+    EXPECT_EQ(pb.py(), 20) << "Should spawn at the top";
     pb.Softdrop();
-    ASSERT_EQ(pb.py(), i) << "Should slowly be building up";
+    EXPECT_EQ(pb.py(), expect_y) << "Should slowly be building up";
     pb.Harddrop();
+    ++expect_y;
   }
 }
 
 TEST(PlayerBoard, Harddrop_Z) {
   PlayerBoard pb;
-  const Piece* I = &pieces::Z;
+  const Piece* piece = &pieces::Z;
+  pb.set_current_piece(piece);
+  pb.ResetPosition();
+  pb.Softdrop();
+  int low_y = pb.py();
   for (int i = 0; i < 10; ++i) {
-    pb.set_current_piece(I);
+    pb.set_current_piece(piece);
     pb.ResetPosition();
-    EXPECT_EQ(pb.py(), 23) << "Should spawn at the top";
     pb.Softdrop();
-    ASSERT_EQ(pb.py(), i * 2) << "Should slowly be building up";
+    ASSERT_EQ(pb.py(), low_y + i * 2) << "Should slowly be building up";
     pb.Harddrop();
   }
 }
 
 TEST(PlayerBoard, LeftRight) {
   PlayerBoard pb;
-  int initx = pb.px();
-  pb.MoveLeft();
-  EXPECT_EQ(pb.px(), initx - 1);
-  pb.MoveRight();
-  EXPECT_EQ(pb.px(), initx);
-  pb.MoveRight();
-  EXPECT_EQ(pb.px(), initx + 1);
+  for (auto piece : pieces::kAll7) {
+    pb.set_current_piece(piece);
+    pb.ResetPosition();
+    std::cout << "== currently testing " << piece->name() << "\n";
+    int initx = pb.px();
+    pb.MoveLeft();
+    ASSERT_EQ(pb.px(), initx - 1) << "dx=-1 for " << pb.current_piece()->name();
+    pb.MoveLeft();
+    ASSERT_EQ(pb.px(), initx - 2) << "dx=-2 for " << pb.current_piece()->name();
+    pb.MoveRight();
+    ASSERT_EQ(pb.px(), initx - 1) << "dx=-1 for " << pb.current_piece()->name();
+    pb.MoveRight();
+    ASSERT_EQ(pb.px(), initx) << "dx=0 for " << pb.current_piece()->name();
+    pb.MoveRight();
+    ASSERT_EQ(pb.px(), initx + 1) << "dx=1 for " << pb.current_piece()->name();
+    pb.MoveRight();
+    ASSERT_EQ(pb.px(), initx + 2) << "dx=2 for " << pb.current_piece()->name();
+  }
 }
 
 TEST(PlayerBoard, Rotation) {
@@ -101,7 +121,7 @@ TEST(PlayerBoard, Rotation) {
   EXPECT_EQ(pb.pd(), 2) << "rotate 180";
 }
 
-TEST(PlayerBoard, KICK_SSD) {
+TEST(PlayerBoard, Kick_SSD) {
   PlayerBoard pb;
   pb.LoadBoard(
       "####..##.#\n"
@@ -117,9 +137,14 @@ TEST(PlayerBoard, KICK_SSD) {
   pb.RotateCW();
   EXPECT_EQ(pb.py(), 0) << "kick should work";
   pb.Harddrop();
+  EXPECT_TRUE(pb.spin()) << "this should count as a spin";
+  pb.Softdrop();
+  pb.RotateCW();
+  pb.Harddrop();
+  EXPECT_FALSE(pb.spin()) << "that is not a spin";
 }
 
-TEST(PlayerBoard, KICK_TST_CW) {
+TEST(PlayerBoard, Kick_TST_CW) {
   PlayerBoard pb;
   pb.LoadBoard(
       "##........\n"
@@ -141,9 +166,14 @@ TEST(PlayerBoard, KICK_TST_CW) {
   pb.RotateCW();
   EXPECT_EQ(pb.py(), 0) << "kick should work";
   pb.Harddrop();
+  EXPECT_TRUE(pb.spin()) << "this should count as a spin";
+  pb.Softdrop();
+  pb.RotateCW();
+  pb.Harddrop();
+  EXPECT_FALSE(pb.spin()) << "that is not a spin";
 }
 
-TEST(PlayerBoard, KICK_TST_CCW) {
+TEST(PlayerBoard, Kick_TST_CCW) {
   PlayerBoard pb;
   pb.LoadBoard(
       "........##\n"
@@ -155,8 +185,6 @@ TEST(PlayerBoard, KICK_TST_CCW) {
   pb.ResetPosition();
   pb.Softdrop();
   EXPECT_GT(pb.py(), 0) << "should be resting on the lines";
-  int initx = pb.px();
-  int expect_x = initx;
   pb.MoveRight();
   pb.MoveRight();
   pb.MoveRight();
@@ -164,4 +192,9 @@ TEST(PlayerBoard, KICK_TST_CCW) {
   pb.RotateCCW();
   EXPECT_EQ(pb.py(), 0) << "kick should work";
   pb.Harddrop();
+  EXPECT_TRUE(pb.spin()) << "this should count as a spin";
+  pb.Softdrop();
+  pb.RotateCW();
+  pb.Harddrop();
+  EXPECT_FALSE(pb.spin()) << "that is not a spin";
 }
