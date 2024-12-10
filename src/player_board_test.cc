@@ -234,3 +234,32 @@ TEST(PlayerBoard, ClearLines) {
   EXPECT_EQ(pb.ClearLines(), 2) << "there are two filled in lines";
   EXPECT_EQ(pb.board().grid[0], 1) << "that one block should've dropped";
 }
+
+TEST(PlayerBoard, ClearQuad) {
+  PlayerBoard pb;
+  pb.SetQueue({&pieces::I, &pieces::I, &pieces::I});
+  pb.LoadBoard(
+      "#########.\n"
+      "#########.\n"
+      "#########.\n"
+      "#########.");
+  std::vector<int> expected{0, 4, 4, 4};
+  EXPECT_EQ(pb.AttackPotential(3), expected);
+}
+
+TEST(PlayerBoard, ClearQuad2) {
+  PlayerBoard pb;
+  pb.SetQueue({&pieces::O, &pieces::I, &pieces::I});
+  pb.LoadBoard(
+      "#..#######\n"
+      "#..####.##\n"
+      "#######.##\n"
+      "#######.##\n"
+      "#######.##\n"
+      "#########.\n"
+      "#########.\n"
+      "#########.\n"
+      "#########.");
+  std::vector<int> expected{0, 0, 4, 9};
+  EXPECT_EQ(pb.AttackPotential(3), expected);
+}

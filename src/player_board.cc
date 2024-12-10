@@ -44,6 +44,10 @@ PlayerBoard::PlayerBoard(const PlayerBoard& other) {
 
   garbage_rng_ = other.garbage_rng_;
   queue_rng_ = other.queue_rng_;
+
+  attack_ = other.attack_;
+  b2b_ = other.b2b_;
+  combo_ = other.combo_;
 }
 
 void PlayerBoard::LoadBoard(const std::string& s) {
@@ -54,6 +58,17 @@ void PlayerBoard::LoadBoard(const std::string& s) {
   board_.Clear();
   Piece p("", s, "#", "#", "#");
   p.Place(board_, 0, p.height(), 0);
+}
+
+void PlayerBoard::SetQueue(std::vector<const Piece*> pieces) {
+  assert(pieces.size() <= 7 && "no more than 7 pieces set");
+  piece_queue_index_ = 1;
+  for (size_t i = 0; i < pieces.size(); ++i) {
+    piece_queue_[i] = pieces[i];
+  }
+  current_piece_ = piece_queue_[0];
+  queue_curr_ = piece_queue_;
+  queue_next_ = piece_queue_ + 7;
 }
 
 const Piece* PlayerBoard::QueuePop() {
@@ -266,6 +281,30 @@ std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
     ret_vis.insert(b.grid);
     ret.push_back({x, y, d});
   }
+  return ret;
+};
+
+std::vector<int> PlayerBoard::AttackPotential(int max_depth) const {
+  std::vector<int> ret(max_depth + 1);
+  std::unordered_set<Board::Grid> vis;
+  auto dfs = [&](const PlayerBoard& pb, int depth, auto&& dfs) -> void {
+    if (depth == max_depth + 1) return;
+    if (pb.attack() + 1 * (max_depth - depth) < ret[depth]) return;
+    // if (pb.attack() >= 4) std::cout << pb << "\n";
+    if (vis.count(pb.board().grid)) return;
+    vis.insert(pb.board().grid);
+    ret[depth] = std::max(ret[depth], pb.attack());
+    for (auto [x, y, d] : pb.GeneratePlacements()) {
+      PlayerBoard pb2 = pb;
+      pb2.set_px(x);
+      pb2.set_py(y);
+      pb2.set_pd(d);
+      pb2.Harddrop();
+      dfs(pb2, depth + 1, dfs);
+    }
+  };
+  dfs(*this, 0, dfs);
+  for (auto& x : ret) x -= attack_;
   return ret;
 };
 

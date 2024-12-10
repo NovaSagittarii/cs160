@@ -34,6 +34,13 @@ class PlayerBoard {
   void set_current_piece(const Piece* piece) { current_piece_ = piece; }
 
   /**
+   * @brief Set the Queue object, used in testing.
+   *
+   * @param `pieces` (at most 7)
+   */
+  void SetQueue(std::vector<const Piece*> pieces);
+
+  /**
    * @brief gets the next piece, and updates internal queue
    *
    * @return `const Piece*` of the next piece
@@ -72,10 +79,19 @@ class PlayerBoard {
 
   /**
    * @brief Generates all possible placements for `current_piece_`.
-   * 
+   *
    * @return `std::vector<std::array<int, 3>>` tuple of <x,y,d>
    */
   std::vector<std::array<int, 3>> GeneratePlacements() const;
+
+  /**
+   * @brief Generate maximum attack damage after placing `max_depth` pieces
+   *
+   * @param max_depth
+   * @return `std::vector<int>` where the `i`th value has the maximum attack
+   * when you are allowed to place exactly `i` pieces.
+   */
+  std::vector<int> AttackPotential(int max_depth) const;
 
   friend std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs);
 
