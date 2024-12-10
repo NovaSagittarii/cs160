@@ -1,9 +1,10 @@
-load("//:cc_config.bzl", "CC_OPTS")
+load("//:cc_config.bzl", "CC_FAST_OPTS", "CC_OPTS")
 
 cc_library(
     name = "board",
     srcs = ["board.cc"],
     hdrs = ["board.hh"],
+    copts = CC_OPTS + CC_FAST_OPTS,
 )
 
 cc_library(
@@ -31,9 +32,10 @@ cc_library(
     name = "player_board",
     srcs = ["player_board.cc"],
     hdrs = ["player_board.hh"],
+    copts = CC_OPTS + CC_FAST_OPTS,
     deps = [
-        "pieces",
         "hash",
+        "pieces",
     ],
 )
 

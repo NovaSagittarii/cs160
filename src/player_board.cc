@@ -287,8 +287,12 @@ std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
 std::vector<int> PlayerBoard::AttackPotential(int max_depth) const {
   std::vector<int> ret(max_depth + 1);
   std::unordered_set<Board::Grid> vis;
+  vis.reserve(4096);
+  int tot = 0;
   auto dfs = [&](const PlayerBoard& pb, int depth, auto&& dfs) -> void {
     if (depth == max_depth + 1) return;
+    ++tot;
+    if (pb.attack() - attack_ + 2 < depth) return;
     if (pb.attack() + 1 * (max_depth - depth) < ret[depth]) return;
     // if (pb.attack() >= 4) std::cout << pb << "\n";
     if (vis.count(pb.board().grid)) return;
@@ -305,6 +309,8 @@ std::vector<int> PlayerBoard::AttackPotential(int max_depth) const {
   };
   dfs(*this, 0, dfs);
   for (auto& x : ret) x -= attack_;
+  std::cout << "check " << tot << ", expand " << vis.size() << ", pruned "
+            << (tot - vis.size()) << "\n";
   return ret;
 };
 
