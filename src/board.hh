@@ -7,7 +7,7 @@
 class Board {
  public:
   const static int width = 10;
-  const static int height = 20;
+  const static int height = 25;
   typedef std::bitset<width * height> Grid;
 
   Grid grid;  // contents of the board
