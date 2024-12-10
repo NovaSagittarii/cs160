@@ -40,12 +40,12 @@ class Piece {
    * intersection, OR the placement is off the board.
    */
   bool Intersects(const Board& board, int dx, int dy, int direction) const {
-    if (dx < 0) return false;
-    if (dy + y_offset_ < 0) return false;
+    if (dx < 0) return true;
+    if (dy + y_offset_ < 0) return true;
     // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height
     // << "\n";
     if (dx + width_ > Board::width || dy + height_ > Board::height) {
-      return false;
+      return true;
     }
     auto mask = nesw_[direction] << (dx + Board::width * dy);
     // Board b;
