@@ -41,8 +41,12 @@ class Piece {
   bool Intersects(const Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Never should use negative offset.");
     assert(dy >= 0 && "Never should use negative offset.");
+    // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height << "\n";
     if (dx + width_ > Board::width || dy + height_ > Board::height) return false;
     auto mask = nesw_[direction] << (dx + Board::width * dy);
+    // Board b;
+    // b.grid = board.grid; std::cout << b << "\n";
+    // b.grid = mask; std::cout << b << "\n";
     return (board.grid & mask).any();
   }
 
@@ -54,11 +58,12 @@ class Piece {
     auto mask = nesw_[direction] << (dx + Board::width * dy);
     board.grid |= mask;
   }
-
+  size_t width() const { return width_; }
+  size_t height() const { return height_; }
   const std::string& name() const { return name_; }
 
  private:
-  int width_, height_;
+  size_t width_, height_;
   std::array<Board::Grid, 4> nesw_;
   std::string name_;
 
@@ -66,25 +71,26 @@ class Piece {
     std::istringstream in(s);
     std::string line;
     grid ^= grid;  // clear
-    int i = 0;
-    width_ = -1;
-    while (std::getline(in, line)) {
+    int first_width = -1;
+    width_ = 0;
+    height_ = 0;
+    for (size_t i = 0; std::getline(in, line); ++i) {
       for (size_t j = 0; j < line.size(); ++j) {
         assert(i * Board::width + j < grid.size() &&
                "Input shouldn't go out of bounds.");
         if (line[j] == '#') {
           grid[i * Board::width + j] = 1;
+          height_ = std::max(height_, i);
+          width_ = std::max(width_, j);
         }
       }
-      ++i;
-      if (width_ == -1) {
-        width_ = line.size();
+      if (first_width == -1) {
+        first_width = line.size();
       } else {
-        assert(width_ == (int)line.size() &&
+        assert(first_width == (int)line.size() &&
                "Input should be a n x m rectangle.");
       }
     }
-    height_ = i;
   }
 };
 
