@@ -1,0 +1,5 @@
+"""
+Modules, only google test is here for unit tests for now.
+"""
+
+bazel_dep(name = "googletest", version = "1.15.0")
