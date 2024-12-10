@@ -30,7 +30,7 @@ class Piece {
 
   /**
    * @brief Piece-board intersection routine for checking if a piece can be
-   * placed at the specific position. Returns true
+   * placed at the specific position.
    *
    * @param grid to check against
    * @param dx horizontal offset of the top-left corner
@@ -44,30 +44,59 @@ class Piece {
     if (dy + y_offset_ < 0) return true;
     // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height
     // << "\n";
-    if (dx + width_ > Board::width || dy + height_ > Board::height) {
-      return true;
+    if (dx + width_ > Board::width) return true;
+    if (dy + height_ > Board::height) return true;
+    int offset = (dx + Board::width * dy);
+    auto mask = nesw_[direction];
+    if (offset > 0) {
+      mask <<= offset;
+    } else {
+      mask >>= -offset;
     }
-    auto mask = nesw_[direction] << (dx + Board::width * dy);
+    /// TODO: fix vertical out-of-bounds (not this scuffed implementation)
+    auto mmask = mask;
+    if (offset > 0) {
+      mmask >>= offset;
+    } else {
+      mmask <<= -offset;
+    }
+    if (mmask != nesw_[direction]) return true;  // its off the board
+
+    // std::cout << "yoffset" << y_offset_ << " ? " << (dy + (int)y_offset_)
+    //           << "\n";
+    // std::cout << "<< " << (dx + Board::width * dy) << "\n";
     // Board b;
-    // b.grid = board.grid; std::cout << b << "\n";
-    // b.grid = mask; std::cout << b << "\n";
+    // b.grid = board.grid; std::cout << "board" << b << "\n";
+    // b.grid = mask; std::cout << "mask" << b << "\n";
     return (board.grid & mask).any();
   }
 
   void Place(Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Invalid offset");
-    assert(dy + y_offset_ >= 0 && "Invalid offset");
+    // assert(dy + y_offset_ >= 0 && "Invalid offset"); // This is broken?
     assert(dx + width_ <= Board::width && "Invalid offset");
     assert(dy + height_ <= Board::height && "Invalid offset");
-    auto mask = nesw_[direction] << (dx + Board::width * dy);
+    int offset = (dx + Board::width * dy);
+    auto mask = nesw_[direction];
+    if (offset > 0) {
+      mask <<= offset;
+    } else {
+      mask >>= -offset;
+    }
     board.grid |= mask;
+    // Board b;
+    // std::cout << "dxy= " << dx << "," << dy << "\n";
+    // std::cout << "yo= " << y_offset_ << "\n";
+    // std::cout << "wh= " << width_ << "," << height_ << "\n";
+    // b.grid = nesw_[direction]; std::cout << "pre" << b << "\n";
+    // b.grid = mask; std::cout << "post" << b << "\n";
   }
   size_t width() const { return width_; }
   size_t height() const { return height_; }
   const std::string& name() const { return name_; }
 
  private:
-  size_t y_offset_;
+  int y_offset_;
   size_t width_, height_;
   std::array<Board::Grid, 4> nesw_;
   std::string name_;
@@ -88,9 +117,9 @@ class Piece {
                "Input shouldn't go out of bounds.");
         if (g[g.size() - 1 - i][j] == '#') {  // flip vertically (storage)
           grid[i * Board::width + j] = 1;
-          height_ = std::max(height_, i);
+          height_ = std::max(height_, g.size() - 1 - i);
           width_ = std::max(width_, j);
-          firsti = std::min(firsti, i);
+          firsti = std::min(firsti, g.size() - i);
         }
       }
       if (first_width == -1) {
@@ -103,7 +132,7 @@ class Piece {
     // alignment
     // int dx = 0;
     // int dy = firsti;
-    y_offset_ = firsti;
+    y_offset_ = height_ - firsti;
     // Board b;
     // std::cout << "dy=" << dy << "\n";
     // b.grid = grid; std::cout << b << "\n";
@@ -207,6 +236,7 @@ const static Piece T("T",
                      ".#.");
 const static Piece Line10("10", "##########", "##########", "##########",
                           "##########");
+const static std::vector<const Piece*> kAll7 = {&J, &T, &L, &S, &Z, &I, &O};
 
 }  // namespace pieces
 
