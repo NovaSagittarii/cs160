@@ -299,3 +299,22 @@ TEST(PlayerBoard, ClearTSMCombo) {
   std::cout << "\n";
   EXPECT_GT(attack_potential[3], 0);
 }
+
+TEST(PlayerBoard, ClearJ_TST_TST) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "#######...\n"
+      "######....\n"
+      "######.###\n"
+      "######..##\n"
+      "######.###\n"
+      "######.###\n"
+      "######..##\n"
+      "######.###");
+  pb.SetQueue({&pieces::J, &pieces::T, &pieces::T});
+  auto attack_potential = pb.AttackPotential(3);
+  for (auto x : attack_potential) std::cout << x << " ";
+  std::cout << "\n";
+  EXPECT_GE(attack_potential[2], 6);
+  EXPECT_GE(attack_potential[3], 12);
+}
