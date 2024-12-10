@@ -12,7 +12,7 @@ std::ostream& operator<<(std::ostream& out, const Board& rhs) {
   const std::string lower_half = "\u2584";
   const std::string full = "\u2588";
   std::array<std::string, 4> chars = {empty, upper_half, lower_half, full};
-  for (int i = 0; i < rhs.grid.size(); ++i) out << rhs.grid[i];
+  for (size_t i = 0; i < rhs.grid.size(); ++i) out << rhs.grid[i];
   out << "\n";
   for (int i = Board::height-1; i >= 0; i -= 2) {
     for (int j = 0; j < Board::width; ++j) {
