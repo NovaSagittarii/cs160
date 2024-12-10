@@ -4,6 +4,19 @@
 
 #include <iostream>
 
+TEST(PlayerBoard, CopyConstructor) {
+  PlayerBoard pb;
+  const Piece* I = &pieces::I;
+  const Piece* O = &pieces::O;
+  pb.set_current_piece(I);
+  EXPECT_EQ(pb.current_piece(), I) << "previously set";
+  EXPECT_EQ(PlayerBoard(pb).current_piece(), I)
+      << "copied board should inherit current piece";
+  pb.set_current_piece(O);
+  EXPECT_EQ(pb.current_piece(), O) << "previously set";
+  EXPECT_EQ(PlayerBoard(pb).current_piece(), O) << "copied board should inherit current piece";
+}
+
 TEST(PlayerBoard, QueuePop) {
   PlayerBoard pb;
   std::vector<std::string> bags;

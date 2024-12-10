@@ -19,6 +19,24 @@ PlayerBoard::PlayerBoard() {
   ResetPosition();
 }
 
+PlayerBoard::PlayerBoard(const PlayerBoard& other) {
+  board_ = other.board_;
+
+  current_piece_ = other.current_piece_;
+  px_ = other.px_;
+  py_ = other.py_;
+  pd_ = other.pd_;
+  spin_ = other.spin_;
+
+  for (int i = 0; i < 14; ++i) piece_queue_[i] = other.piece_queue_[i];
+  piece_queue_index_ = other.piece_queue_index_;
+  queue_curr_ = other.queue_curr_;
+  queue_next_ = other.queue_next_;
+
+  garbage_rng_ = other.garbage_rng_;
+  queue_rng_ = other.queue_rng_;
+}
+
 const Piece* PlayerBoard::QueuePop() {
   if (piece_queue_index_ == 0 || piece_queue_index_ == 7) RefreshQueue();
   if (piece_queue_index_ == 14) piece_queue_index_ = 0;
