@@ -2,6 +2,7 @@
 
 #include <array>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 PlayerBoard::PlayerBoard() {
@@ -253,7 +254,19 @@ std::vector<std::array<int, 3>> PlayerBoard::GeneratePlacements() const {
     pb.set_pd(pd);
   };
   dfs(dfs);
-  return {vis_stable.begin(), vis_stable.end()};
+
+  std::unordered_set<Board::Grid> ret_vis;
+  std::vector<std::array<int, 3>> ret;
+  Board b;
+  for (auto [x, y, d] : vis_stable) {
+    b.Clear();
+    current_piece_->Place(b, x, y, d);
+    if (ret_vis.count(b.grid)) continue;
+    // std::cout << x << "," << y << "," << d << "\n" << b << "\n";
+    ret_vis.insert(b.grid);
+    ret.push_back({x, y, d});
+  }
+  return ret;
 };
 
 std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs) {

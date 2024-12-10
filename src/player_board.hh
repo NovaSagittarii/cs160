@@ -70,6 +70,11 @@ class PlayerBoard {
    */
   bool IsValidPosition(int x, int y, int d) const;
 
+  /**
+   * @brief Generates all possible placements for `current_piece_`.
+   * 
+   * @return `std::vector<std::array<int, 3>>` tuple of <x,y,d>
+   */
   std::vector<std::array<int, 3>> GeneratePlacements() const;
 
   friend std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs);

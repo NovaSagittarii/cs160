@@ -203,9 +203,9 @@ TEST(PlayerBoard, Kick_TST_CCW) {
 TEST(PlayerBoard, GeneratePlacements_O) {
   PlayerBoard pb;
   pb.set_current_piece(&pieces::O);
-  EXPECT_EQ(pb.GeneratePlacements().size(), 36)
-      << "There are 36 possible locations to put an O on an empty board. 9 "
-         "horizontal offsets, and 4 orientations for each ";
+  EXPECT_EQ(pb.GeneratePlacements().size(), 9)
+      << "There are 9 possible locations to put an O on an empty board, "
+         "variations in orientation do not make a difference.";
 }
 
 TEST(PlayerBoard, GeneratePlacements_TST) {
@@ -224,7 +224,6 @@ TEST(PlayerBoard, GeneratePlacements_TST) {
   }
   EXPECT_TRUE(ok) << "Should have found one valid TST kick.";
 }
-
 
 TEST(PlayerBoard, ClearLines) {
   PlayerBoard pb;
