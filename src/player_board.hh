@@ -28,6 +28,7 @@ class PlayerBoard {
   void set_py(int py) { py_ = py; }
   void set_pd(int pd) { pd_ = pd; }
   bool spin() const { return spin_; }
+  int attack() const { return attack_; }
   const auto& board() const { return board_; }
   const Piece* current_piece() const { return current_piece_; }
   void set_current_piece(const Piece* piece) { current_piece_ = piece; }
@@ -85,9 +86,9 @@ class PlayerBoard {
   // whether spin bonus is active, determined at harddrop time, before line
   // updates (double attack)
   bool spin_;
-  int b2b_;     // length of back to back
-  int combo_;   // length of ongoing combo
-  int attack_;  // pending attack
+  int b2b_ = 0;     // length of back to back
+  int combo_ = 0;   // length of ongoing combo
+  int attack_ = 0;  // pending attack
 
   // circular queue indexed by `piece_queue_index`
   const Piece* piece_queue_[14];

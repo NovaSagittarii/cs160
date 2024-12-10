@@ -149,9 +149,9 @@ TEST(PlayerBoard, Kick_TST_CW) {
   pb.LoadBoard(
       "##........\n"
       "#.........\n"
-      "#.#####.##\n"
-      "#..#####.#\n"
-      "#.#######.");
+      "#.########\n"
+      "#..#######\n"
+      "#.########");
   pb.set_current_piece(&pieces::T);
   pb.ResetPosition();
   pb.Softdrop();
@@ -167,6 +167,7 @@ TEST(PlayerBoard, Kick_TST_CW) {
   EXPECT_EQ(pb.py(), 0) << "kick should work";
   pb.Harddrop();
   EXPECT_TRUE(pb.spin()) << "this should count as a spin";
+  EXPECT_EQ(pb.attack(), 6) << "6 attack from TST";
   pb.Softdrop();
   pb.RotateCW();
   pb.Harddrop();

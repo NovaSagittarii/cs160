@@ -188,7 +188,14 @@ int PlayerBoard::ClearLines() {
     // board_.grid
   }
   int base = lines;
-  if (base == 1 || base == 2 || base == 3) base -= 1;
+  if (!spin_ && (base == 1 || base == 2 || base == 3)) base -= 1;
+  // std::cout << "cleared " << lines << (spin_ ? "+spin" : "") << "\n";
+  if (spin_ || lines >= 4) {
+    if (b2b_) ++attack_;
+    ++b2b_;
+  } else {
+    b2b_ = 0;
+  }
   attack_ += base * (spin_ ? 2 : 1);
   return lines;
 }
