@@ -1,5 +1,7 @@
 #include "player_board.hh"
 
+#include <vector>
+
 PlayerBoard::PlayerBoard() {
   // populate the first 7
   piece_queue_index_ = 0;
@@ -37,6 +39,16 @@ PlayerBoard::PlayerBoard(const PlayerBoard& other) {
   queue_rng_ = other.queue_rng_;
 }
 
+void PlayerBoard::LoadBoard(const std::string& s) {
+  // std::istringstream in(s);
+  // std::vector<std::string> g;
+  // std::string line;
+  // while (in >> line) g.push_back(line);
+  board_.Clear();
+  Piece p("", s, "#", "#", "#");
+  p.Place(board_, 0, p.height(), 0);
+}
+
 const Piece* PlayerBoard::QueuePop() {
   if (piece_queue_index_ == 0 || piece_queue_index_ == 7) RefreshQueue();
   if (piece_queue_index_ == 14) piece_queue_index_ = 0;
@@ -57,9 +69,10 @@ void PlayerBoard::RefreshQueue() {
 }
 
 void PlayerBoard::ResetPosition() {
-  px_ = (Board::width - current_piece_->width()) / 2;
+  px_ = (Board::width - current_piece_->width() - 2) / 2;
   py_ = 23;
   pd_ = 0;
+  spin_ = false;
 }
 
 void PlayerBoard::Softdrop() {
@@ -75,10 +88,77 @@ void PlayerBoard::Harddrop() {
   ResetPosition();
 }
 
+void PlayerBoard::RotateCW() {
+  /**
+   * 0->1	( 0, 0)	(-1, 0)	(-1,+1)	( 0,-2)	(-1,-2)
+   * 1->2	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
+   * 2->3	( 0, 0)	(+1, 0)	(+1,+1)	( 0,-2)	(+1,-2)
+   * 3->0	( 0, 0)	(-1, 0)	(-1,-1)	( 0,+2)	(-1,+2)
+   */
+  const static std::vector<std::array<int, 2>> offsets = {
+      {0, 0}, {-1, 0}, {-1, 1}, {0, -2}, {-1, -2},
+  };
+  for (auto [dx, dy] : offsets) {
+    // std::cout << "attempt dxy=" << dx << "," << dy << "\n";
+    if (pd_ == 1 || pd_ == 2) dx *= -1;
+    if (pd_ == 1 || pd_ == 3) dy *= -1;
+    if (IsValidPosition(px_ + dx, py_ + dy, (pd_ + 1) % 4)) {
+      px_ += dx;
+      py_ += dy;
+      pd_ = (pd_ + 1) % 4;
+      break;
+    }
+  }
+}
+void PlayerBoard::RotateCCW() {
+  /*
+   * 0->3	( 0, 0)	(+1, 0)	(+1,+1)	( 0,-2)	(+1,-2)
+   * 1->0	( 0, 0)	(+1, 0)	(+1,-1)	( 0,+2)	(+1,+2)
+   * 2->1	( 0, 0)	(-1, 0)	(-1,+1)	( 0,-2)	(-1,-2)
+   * 3->2	( 0, 0)	(-1, 0)	(-1,-1)	( 0,+2)	(-1,+2)
+   */
+  const static std::vector<std::array<int, 2>> offsets = {
+      {0, 0}, {1, 0}, {1, 1}, {0, -2}, {1, -2},
+  };
+  for (auto [dx, dy] : offsets) {
+    // std::cout << "attempt dxy=" << dx << "," << dy << "\n";
+    if (pd_ == 1 || pd_ == 2) dx *= -1;
+    if (pd_ == 1 || pd_ == 3) dy *= -1;
+    if (IsValidPosition(px_ + dx, py_ + dy, (pd_ - 1 + 4) % 4)) {
+      px_ += dx;
+      py_ += dy;
+      pd_ = (pd_ - 1 + 4) % 4;
+      break;
+    }
+  }
+}
+void PlayerBoard::Rotate180() {
+  /// TODO: 180 kick table
+  if (IsValidPosition(px_, py_, pd_ ^ 2)) {
+    pd_ ^= 2;
+  }
+}
+void PlayerBoard::MoveLeft() {
+  if (IsValidPosition(px_ - 1, py_, pd_)) {
+    px_ -= 1;
+  }
+}
+void PlayerBoard::MoveRight() {
+  if (IsValidPosition(px_ + 1, py_, pd_)) {
+    px_ += 1;
+  }
+}
+
 bool PlayerBoard::IsValidPosition(int x, int y, int d) const {
   bool ok = !current_piece_->Intersects(board_, x, y, d);
   // std::cout << "testing " << x << " " << y << " " << d << " ";
   // std::cout << (ok ? "OK" : "FAIL");
   // std::cout << "\n";
   return ok;
+}
+
+std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs) {
+  out << "curr: " << rhs.current_piece_->name() << "\n";
+  out << rhs.board_;
+  return out;
 }

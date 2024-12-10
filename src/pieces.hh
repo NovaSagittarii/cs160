@@ -40,10 +40,13 @@ class Piece {
    * intersection, OR the placement is off the board.
    */
   bool Intersects(const Board& board, int dx, int dy, int direction) const {
-    assert(dx >= 0 && "Never should use negative offset.");
-    assert(dy >= 0 && "Never should use negative offset.");
-    // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height << "\n";
-    if (dx + width_ > Board::width || dy + height_ > Board::height) return false;
+    if (dx < 0) return false;
+    if (dy + y_offset_ < 0) return false;
+    // std::cout << "dy=" << dy << "; h=" << height_ << "; bh=" << Board::height
+    // << "\n";
+    if (dx + width_ > Board::width || dy + height_ > Board::height) {
+      return false;
+    }
     auto mask = nesw_[direction] << (dx + Board::width * dy);
     // Board b;
     // b.grid = board.grid; std::cout << b << "\n";
@@ -53,7 +56,7 @@ class Piece {
 
   void Place(Board& board, int dx, int dy, int direction) const {
     assert(dx >= 0 && "Invalid offset");
-    assert(dy >= 0 && "Invalid offset");
+    assert(dy + y_offset_ >= 0 && "Invalid offset");
     assert(dx + width_ <= Board::width && "Invalid offset");
     assert(dy + height_ <= Board::height && "Invalid offset");
     auto mask = nesw_[direction] << (dx + Board::width * dy);
@@ -64,6 +67,7 @@ class Piece {
   const std::string& name() const { return name_; }
 
  private:
+  size_t y_offset_;
   size_t width_, height_;
   std::array<Board::Grid, 4> nesw_;
   std::string name_;
@@ -97,12 +101,13 @@ class Piece {
       }
     }
     // alignment
-    int dx = 0;
-    int dy = firsti;
+    // int dx = 0;
+    // int dy = firsti;
+    y_offset_ = firsti;
     // Board b;
     // std::cout << "dy=" << dy << "\n";
     // b.grid = grid; std::cout << b << "\n";
-    grid >>= (dx + Board::width * dy);
+    // grid >>= (dx + Board::width * dy);
     // b.grid = grid; std::cout << b << "\n";
   }
 };
@@ -110,96 +115,98 @@ class Piece {
 namespace pieces {
 
 const static Piece J("J",
-    "#..\n"
-    "###\n"
-    "...",
-    "...\n"
-    "###\n"
-    "#..",
-    "##.\n"
-    ".#.\n"
-    ".#.",
-    ".#.\n"
-    ".#.\n"
-    "##.");
+                     "#..\n"
+                     "###\n"
+                     "...",
+                     "...\n"
+                     "###\n"
+                     "#..",
+                     "##.\n"
+                     ".#.\n"
+                     ".#.",
+                     ".#.\n"
+                     ".#.\n"
+                     "##.");
 const static Piece L("L",
-    "..#\n"
-    "###\n"
-    "...",
-    ".#.\n"
-    ".#.\n"
-    ".##",
-    "...\n"
-    "###\n"
-    "#..",
-    "##.\n"
-    ".#.\n"
-    ".#.");
+                     "..#\n"
+                     "###\n"
+                     "...",
+                     ".#.\n"
+                     ".#.\n"
+                     ".##",
+                     "...\n"
+                     "###\n"
+                     "#..",
+                     "##.\n"
+                     ".#.\n"
+                     ".#.");
 const static Piece S("S",
-    ".##\n"
-    "##.\n"
-    "...",
-    ".#.\n"
-    ".##\n"
-    "..#",
-    "...\n"
-    ".##\n"
-    "##.",
-    "#..\n"
-    "##.\n"
-    ".#.");
+                     ".##\n"
+                     "##.\n"
+                     "...",
+                     ".#.\n"
+                     ".##\n"
+                     "..#",
+                     "...\n"
+                     ".##\n"
+                     "##.",
+                     "#..\n"
+                     "##.\n"
+                     ".#.");
 const static Piece Z("Z",
-    "##.\n"
-    ".##\n"
-    "...",
-    "..#\n"
-    ".##\n"
-    ".#.",
-    "...\n"
-    "##.\n"
-    ".##",
-    ".#.\n"
-    "##.\n"
-    "#..");
+                     "##.\n"
+                     ".##\n"
+                     "...",
+                     "..#\n"
+                     ".##\n"
+                     ".#.",
+                     "...\n"
+                     "##.\n"
+                     ".##",
+                     ".#.\n"
+                     "##.\n"
+                     "#..");
 const static Piece O("O",
-    "##\n"
-    "##",
-    "##\n"
-    "##",
-    "##\n"
-    "##",
-    "##\n"
-    "##");
+                     "##\n"
+                     "##",
+                     "##\n"
+                     "##",
+                     "##\n"
+                     "##",
+                     "##\n"
+                     "##");
 const static Piece I("I",
-    "....\n"
-    "####\n"
-    "....\n"
-    "....",
-    "..#.\n"
-    "..#.\n"
-    "..#.\n"
-    "..#.",
-    "....\n"
-    "....\n"
-    "####\n"
-    "....",
-    ".#..\n"
-    ".#..\n"
-    ".#..\n"
-    ".#..");
+                     "....\n"
+                     "####\n"
+                     "....\n"
+                     "....",
+                     "..#.\n"
+                     "..#.\n"
+                     "..#.\n"
+                     "..#.",
+                     "....\n"
+                     "....\n"
+                     "####\n"
+                     "....",
+                     ".#..\n"
+                     ".#..\n"
+                     ".#..\n"
+                     ".#..");
 const static Piece T("T",
-    ".#.\n"
-    "###\n"
-    "...",
-    ".#.\n"
-    ".##\n"
-    ".#.",
-    "...\n"
-    "###\n"
-    ".#.",
-    ".#.\n"
-    "##.\n"
-    ".#.");
+                     ".#.\n"
+                     "###\n"
+                     "...",
+                     ".#.\n"
+                     ".##\n"
+                     ".#.",
+                     "...\n"
+                     "###\n"
+                     ".#.",
+                     ".#.\n"
+                     "##.\n"
+                     ".#.");
+const static Piece Line10("10", "##########", "##########", "##########",
+                          "##########");
 
 }  // namespace pieces
 

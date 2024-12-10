@@ -14,7 +14,8 @@ TEST(PlayerBoard, CopyConstructor) {
       << "copied board should inherit current piece";
   pb.set_current_piece(O);
   EXPECT_EQ(pb.current_piece(), O) << "previously set";
-  EXPECT_EQ(PlayerBoard(pb).current_piece(), O) << "copied board should inherit current piece";
+  EXPECT_EQ(PlayerBoard(pb).current_piece(), O)
+      << "copied board should inherit current piece";
 }
 
 TEST(PlayerBoard, QueuePop) {
@@ -69,7 +70,98 @@ TEST(PlayerBoard, Harddrop_Z) {
     pb.ResetPosition();
     EXPECT_EQ(pb.py(), 23) << "Should spawn at the top";
     pb.Softdrop();
-    ASSERT_EQ(pb.py(), i*2) << "Should slowly be building up";
+    ASSERT_EQ(pb.py(), i * 2) << "Should slowly be building up";
     pb.Harddrop();
   }
+}
+
+TEST(PlayerBoard, LeftRight) {
+  PlayerBoard pb;
+  int initx = pb.px();
+  pb.MoveLeft();
+  EXPECT_EQ(pb.px(), initx - 1);
+  pb.MoveRight();
+  EXPECT_EQ(pb.px(), initx);
+  pb.MoveRight();
+  EXPECT_EQ(pb.px(), initx + 1);
+}
+
+TEST(PlayerBoard, Rotation) {
+  PlayerBoard pb;
+  EXPECT_EQ(pb.pd(), 0) << "should spawn facing north";
+  for (int d = 0; d < 4; ++d) {
+    EXPECT_EQ(pb.pd(), d) << "rotating clockwise";
+    pb.RotateCW();
+  }
+  for (int d = 3; d >= 0; --d) {
+    pb.RotateCCW();
+    EXPECT_EQ(pb.pd(), d) << "rotating counter-clockwise";
+  }
+  pb.Rotate180();
+  EXPECT_EQ(pb.pd(), 2) << "rotate 180";
+}
+
+TEST(PlayerBoard, KICK_SSD) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "####..##.#\n"
+      "###..####.");
+  pb.set_current_piece(&pieces::S);
+  pb.ResetPosition();
+  pb.RotateCW();
+  EXPECT_GE(pb.py(), 2) << "it should be somewhere pretty high";
+  pb.MoveLeft();
+  EXPECT_GE(pb.py(), 2) << "it should be somewhere pretty high";
+  pb.Softdrop();
+  EXPECT_EQ(pb.py(), 1) << "soft dropped";
+  pb.RotateCW();
+  EXPECT_EQ(pb.py(), 0) << "kick should work";
+  pb.Harddrop();
+}
+
+TEST(PlayerBoard, KICK_TST_CW) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "##........\n"
+      "#.........\n"
+      "#.#####.##\n"
+      "#..#####.#\n"
+      "#.#######.");
+  pb.set_current_piece(&pieces::T);
+  pb.ResetPosition();
+  pb.Softdrop();
+  EXPECT_GT(pb.py(), 0) << "should be resting on the lines";
+  int initx = pb.px();
+  int expect_x = initx;
+  while (pb.px() > 1) {
+    pb.MoveLeft();
+    --expect_x;
+    EXPECT_EQ(pb.px(), expect_x) << "should be able to move to the left";
+  }
+  pb.RotateCW();
+  EXPECT_EQ(pb.py(), 0) << "kick should work";
+  pb.Harddrop();
+}
+
+TEST(PlayerBoard, KICK_TST_CCW) {
+  PlayerBoard pb;
+  pb.LoadBoard(
+      "........##\n"
+      ".........#\n"
+      "#.######.#\n"
+      "##.####..#\n"
+      "#.######.#");
+  pb.set_current_piece(&pieces::T);
+  pb.ResetPosition();
+  pb.Softdrop();
+  EXPECT_GT(pb.py(), 0) << "should be resting on the lines";
+  int initx = pb.px();
+  int expect_x = initx;
+  pb.MoveRight();
+  pb.MoveRight();
+  pb.MoveRight();
+  pb.MoveRight();
+  pb.RotateCCW();
+  EXPECT_EQ(pb.py(), 0) << "kick should work";
+  pb.Harddrop();
 }

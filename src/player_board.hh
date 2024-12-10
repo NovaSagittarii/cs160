@@ -15,6 +15,11 @@ class PlayerBoard {
   PlayerBoard();
   PlayerBoard(const PlayerBoard&);
 
+  /**
+   * @brief loads the string onto the board, useful for testing
+   */
+  void LoadBoard(const std::string&);
+
   int px() const { return px_; }
   int py() const { return py_; }
   int pd() const { return pd_; }
