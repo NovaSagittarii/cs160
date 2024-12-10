@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <sstream>
+#include <vector>
 
 #include "board.hh"
 
@@ -68,20 +69,24 @@ class Piece {
   std::string name_;
 
   void LoadString(Board::Grid& grid, const std::string& s) {
+    std::vector<std::string> g;
     std::istringstream in(s);
     std::string line;
+    while (in >> line) g.push_back(line);
     grid ^= grid;  // clear
+    size_t firsti = Board::height;
     int first_width = -1;
     width_ = 0;
     height_ = 0;
-    for (size_t i = 0; std::getline(in, line); ++i) {
-      for (size_t j = 0; j < line.size(); ++j) {
+    for (size_t i = 0; i < g.size(); ++i) {
+      for (size_t j = 0; j < g[i].size(); ++j) {
         assert(i * Board::width + j < grid.size() &&
                "Input shouldn't go out of bounds.");
-        if (line[j] == '#') {
+        if (g[g.size() - 1 - i][j] == '#') {  // flip vertically (storage)
           grid[i * Board::width + j] = 1;
           height_ = std::max(height_, i);
           width_ = std::max(width_, j);
+          firsti = std::min(firsti, i);
         }
       }
       if (first_width == -1) {
@@ -91,6 +96,14 @@ class Piece {
                "Input should be a n x m rectangle.");
       }
     }
+    // alignment
+    int dx = 0;
+    int dy = firsti;
+    // Board b;
+    // std::cout << "dy=" << dy << "\n";
+    // b.grid = grid; std::cout << b << "\n";
+    grid >>= (dx + Board::width * dy);
+    // b.grid = grid; std::cout << b << "\n";
   }
 };
 
