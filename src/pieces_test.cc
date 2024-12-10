@@ -19,7 +19,7 @@ TEST(Pieces, Intersect) {
   for (int d = 0; d < 3; ++d) {  // try various orientations of O
     Board b;
     EXPECT_FALSE(pieces::O.Intersects(b, 1, 0, d)) << "Nothing's on the board";
-    pieces::O.Place(b, 0, 0, d);
+    pieces::O.Place(b, 1, 0, d);
     EXPECT_TRUE(pieces::O.Intersects(b, 0, 0, (d + 1) % 3))
         << "Should overlap";
     EXPECT_TRUE(pieces::O.Intersects(b, 2, 1, (d + 2) % 3))
