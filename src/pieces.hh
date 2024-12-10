@@ -12,13 +12,15 @@ class Piece {
   /**
    * @brief Construct a new Piece object.
    *
+   * @param name
    * @param sn string for north
    * @param se string for east
    * @param ss string for south
    * @param sw string for west
    */
-  Piece(const std::string& sn, const std::string& se, const std::string& ss,
-        const std::string& sw) {
+  Piece(const std::string& name, const std::string& sn, const std::string& se,
+        const std::string& ss, const std::string& sw) {
+    name_ = name;
     LoadString(nesw[0], sn);
     LoadString(nesw[1], se);
     LoadString(nesw[2], ss);
@@ -53,9 +55,12 @@ class Piece {
     board.grid |= mask;
   }
 
+  const std::string& name() const { return name_; }
+
  private:
   int width, height;
   std::array<Board::Grid, 4> nesw;
+  std::string name_;
 
   void LoadString(Board::Grid& grid, const std::string& s) {
     std::istringstream in(s);
@@ -75,7 +80,8 @@ class Piece {
       if (width == -1) {
         width = line.size();
       } else {
-        assert(width == (int)line.size() && "Input should be a n x m rectangle.");
+        assert(width == (int)line.size() &&
+               "Input should be a n x m rectangle.");
       }
     }
     height = i;
@@ -84,7 +90,7 @@ class Piece {
 
 namespace pieces {
 
-const static Piece J(
+const static Piece J("J",
     "#..\n"
     "###\n"
     "...",
@@ -97,7 +103,7 @@ const static Piece J(
     ".#.\n"
     ".#.\n"
     "##.");
-const static Piece L(
+const static Piece L("L",
     "..#\n"
     "###\n"
     "...",
@@ -110,7 +116,7 @@ const static Piece L(
     "##.\n"
     ".#.\n"
     ".#.");
-const static Piece S(
+const static Piece S("S",
     ".##\n"
     "##.\n"
     "...",
@@ -123,7 +129,7 @@ const static Piece S(
     "#..\n"
     "##.\n"
     ".#.");
-const static Piece Z(
+const static Piece Z("Z",
     "##.\n"
     ".##\n"
     "...",
@@ -136,7 +142,7 @@ const static Piece Z(
     ".#.\n"
     "##.\n"
     "#..");
-const static Piece O(
+const static Piece O("O",
     "##\n"
     "##",
     "##\n"
@@ -145,7 +151,7 @@ const static Piece O(
     "##",
     "##\n"
     "##");
-const static Piece I(
+const static Piece I("I",
     "....\n"
     "####\n"
     "....\n"
@@ -162,7 +168,7 @@ const static Piece I(
     ".#..\n"
     ".#..\n"
     ".#..");
-const static Piece T(
+const static Piece T("T",
     ".#.\n"
     "###\n"
     "...",
