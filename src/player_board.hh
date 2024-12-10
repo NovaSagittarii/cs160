@@ -13,6 +13,7 @@
 class PlayerBoard {
  public:
   PlayerBoard();
+  PlayerBoard(uint64_t seed);
   PlayerBoard(const PlayerBoard&);
 
   /**

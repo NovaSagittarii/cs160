@@ -21,6 +21,10 @@ PlayerBoard::PlayerBoard() {
   ResetPosition();
 }
 
+PlayerBoard::PlayerBoard(uint64_t seed) : PlayerBoard() {
+  garbage_rng_ = queue_rng_ = seed;
+}
+
 PlayerBoard::PlayerBoard(const PlayerBoard& other) {
   board_ = other.board_;
 

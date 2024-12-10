@@ -19,7 +19,7 @@ TEST(PlayerBoard, CopyConstructor) {
 }
 
 TEST(PlayerBoard, QueuePop) {
-  PlayerBoard pb;
+  PlayerBoard pb(0);
   std::vector<std::string> bags;
   for (int i = 0; i < 3; ++i) {
     std::string bag;
@@ -35,7 +35,7 @@ TEST(PlayerBoard, QueuePop) {
 }
 
 TEST(PlayerBoard, BagContents) {
-  PlayerBoard pb;
+  PlayerBoard pb(0);
   for (int i = 0; i < 5000; ++i) {
     std::set<std::string> bag;
     for (int j = 0; j < 7; ++j) {
