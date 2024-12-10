@@ -7,6 +7,11 @@ cc_library(
 )
 
 cc_library(
+    name = "hash",
+    hdrs = ["hash.h"],
+)
+
+cc_library(
     name = "pieces",
     hdrs = ["pieces.hh"],
     deps = ["board"],
@@ -18,6 +23,26 @@ cc_test(
     copts = CC_OPTS,
     deps = [
         "pieces",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "player_board",
+    srcs = ["player_board.cc"],
+    hdrs = ["player_board.hh"],
+    deps = [
+        "pieces",
+        "hash",
+    ],
+)
+
+cc_test(
+    name = "player_board_test",
+    srcs = ["player_board_test.cc"],
+    copts = CC_OPTS,
+    deps = [
+        "player_board",
         "@googletest//:gtest_main",
     ],
 )
