@@ -20,7 +20,8 @@ int32_t main() {
   pb.set_current_piece(&pieces::T);
   std::cout << pb << "\n";
 
-  for (int i = 0; i < 20; ++i) {
+  int total_nodes = 0;
+  for (int i = 0; i < 100; ++i) {
     int best_placement_id = -1;
     double best_eval = -1e9;
     auto placements = pb.GeneratePlacements();
@@ -37,7 +38,7 @@ int32_t main() {
     }
 
     int nodes_explored = 0;
-    const int max_depth = 6;
+    const int max_depth = 10;
     for (int curr_level = 2; curr_level <= max_depth; ++curr_level) {
       std::sort(curr_id.rbegin(), curr_id.rend());
 
@@ -102,6 +103,7 @@ int32_t main() {
               best_placement_id = id;
             }
           }
+          ++nodes_explored;
         }
       }
 
@@ -116,7 +118,10 @@ int32_t main() {
     pb.SimulatePlacement(x, y, d);
     std::cout << std::string(10, '\n');
     std::cout << pb;
-    std::cout << "eval= " << best_eval << "; ";
-    std::cout << "nodes explored= " << nodes_explored << std::endl;
+    std::cout << "eval=" << std::setw(6) << best_eval << "; ";
+    std::cout << "nodes explored=" << std::setw(7) << nodes_explored << "; ";
+    total_nodes += nodes_explored;
+    std::cout << "total explored=" << std::setw(7) << total_nodes << "; ";
+    std::cout << std::endl;
   }
 }
