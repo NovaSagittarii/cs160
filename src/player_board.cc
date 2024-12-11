@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include "hash.h"
+
 PlayerBoard::PlayerBoard() {
   // populate the first 7
   piece_queue_index_ = 0;

@@ -4,7 +4,6 @@
 #include <array>
 
 #include "board.hh"
-#include "hash.h"
 #include "pieces.hh"
 
 /**
