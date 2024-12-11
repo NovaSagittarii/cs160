@@ -98,6 +98,22 @@ class PlayerBoard {
    */
   std::vector<int> AttackPotential(int max_depth) const;
 
+  /**
+   * @brief shorthand for moving current piece to x,y,d and then harddrop
+   *
+   * @param x
+   * @param y
+   * @param d
+   */
+  void SimulatePlacement(int x, int y, int d);
+
+  /**
+   * @brief runs some heuristics based on misamino
+   *
+   * @return double
+   */
+  double Evaluate() const;
+
   friend std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs);
 
  private:
@@ -114,7 +130,8 @@ class PlayerBoard {
   bool spin_;
   int b2b_ = 0;     // length of back to back
   int combo_ = 0;   // length of ongoing combo
-  int attack_ = 0;  // pending attack
+  int attack_ = 0;  // lines sent (pending attack)
+  int lines_ = 0;   // lines cleared
 
   // circular queue indexed by `piece_queue_index`
   const Piece* piece_queue_[14];

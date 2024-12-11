@@ -22,7 +22,7 @@ PlayerBoard::PlayerBoard() {
   // Note: next set will be generated on pop
 
   // initialize `current_piece_`
-  current_piece_ = piece_queue_[0];
+  QueuePop(); // current_piece_ = piece_queue_[0];
   ResetPosition();
 }
 
@@ -50,6 +50,7 @@ PlayerBoard::PlayerBoard(const PlayerBoard& other) {
   attack_ = other.attack_;
   b2b_ = other.b2b_;
   combo_ = other.combo_;
+  lines_ = other.lines_;
 }
 
 void PlayerBoard::LoadBoard(const std::string& s) {
@@ -121,6 +122,7 @@ void PlayerBoard::Harddrop() {
   // std::cout << board_ << "\n";
   ClearLines();
 
+  spin_ = false;
   current_piece_ = QueuePop();
   ResetPosition();
 }
@@ -235,6 +237,7 @@ int PlayerBoard::ClearLines() {
   } else {
     combo_ = 0;
   }
+  lines_ += lines;
   return lines;
 }
 
@@ -342,8 +345,42 @@ std::vector<int> PlayerBoard::AttackPotential(int max_depth) const {
   return ret;
 };
 
+void PlayerBoard::SimulatePlacement(int x, int y, int d) {
+  set_px(x);
+  set_py(y);
+  set_pd(d);
+  Harddrop();
+}
+
+double PlayerBoard::Evaluate() const {
+  int lbonus = 5 * (attack_ + 2 * std::min(2, b2b_)) + lines_;
+  lbonus += (combo_ >= 4 ? combo_ * combo_ * 5 : 0);
+  int flatness = 0;
+  int holes = 0;
+  int prev = -2;
+  for (int j = 0; j < Board::width; ++j) {
+    int hi = -1;
+    for (int i = Board::height - 1; i >= 0; --i) {
+      if (board_.grid[i * Board::width + j]) {
+        if (hi == -1) hi = i;
+      } else {
+        if (hi != -1) ++holes;
+      }
+    }
+    if (j) {
+      flatness -= std::abs(hi - prev);
+    }
+    prev = hi;
+  }
+  return lbonus + 2*flatness + (-25)*holes;
+}
+
 std::ostream& operator<<(std::ostream& out, const PlayerBoard& rhs) {
-  out << "curr: " << rhs.current_piece_->name() << "\n";
+  out << " curr: " << rhs.current_piece_->name() << "\n";
+  out << " sent: " << rhs.attack_ << "\n";
+  out << "  b2b: " << rhs.b2b_ << "\n";
+  out << "combo: " << rhs.combo_ << "\n";
+  out << " line: " << rhs.lines_ << "\n";
   out << rhs.board_;
   return out;
 }

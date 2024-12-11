@@ -48,3 +48,10 @@ cc_test(
         "@googletest//:gtest_main",
     ],
 )
+
+cc_binary(
+    name = "search_1p",
+    srcs = ["search_1p.cc"],
+    copts = CC_OPTS + CC_FAST_OPTS,
+    deps = ["player_board"],
+)
