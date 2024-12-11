@@ -1,0 +1,10 @@
+cc_library(
+    name = "parlaylib",
+    hdrs = glob([
+        "include/**/*.h",
+    ]),
+    includes = [
+        "include",
+    ],
+    visibility = ["//visibility:public"],
+)
